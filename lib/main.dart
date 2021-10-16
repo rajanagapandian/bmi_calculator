@@ -1,10 +1,10 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'dart:ffi';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+enum Gender { male, female }
 
 void main() {
   runApp(const MyApp());
@@ -21,8 +21,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.indigo,
         textTheme: TextTheme(
-          bodyText2: GoogleFonts.balsamiqSans(),
-          bodyText1: GoogleFonts.balsamiqSans(),
+          bodyText2: GoogleFonts.bebasNeue(),
+          bodyText1: GoogleFonts.bebasNeue(),
         ),
       ),
       home: const MyHomePage(),
@@ -38,10 +38,31 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var _currentIndex = 0;
-  var _height = 50.0;
+  var _height = 160.0,
+      _calculated = false,
+      _weight = 60,
+      _bmi = 0.0,
+      _category = '';
 
-  void _setCurrentIndex(int index) => setState(() => _currentIndex = index);
+  void _calculate() {
+    var heightInMts = _height / 100;
+    var bmi = _weight / (heightInMts * heightInMts);
+    var category = '';
+    if (bmi < 18.5) {
+      category = '(Underweight)';
+    } else if (bmi >= 18.5 && bmi <= 24.9) {
+      category = '(Normal)';
+    } else if (bmi >= 25 && bmi <= 29.9) {
+      category = '(Overweight)';
+    } else if (bmi >= 30) {
+      category = '(Obese)';
+    }
+    setState(() {
+      _bmi = bmi;
+      _category = category;
+      _calculated = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,33 +73,14 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          'BMI Calculator',
-          style: GoogleFonts.balsamiqSans(
+          'BMI',
+          style: GoogleFonts.righteous(
             fontWeight: FontWeight.bold,
             color: Colors.indigo,
+            fontSize: 25,
+            // letterSpacing: 1.5,
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calculate),
-            label: 'Calculate',
-            backgroundColor: Colors.indigo,
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'History',
-            backgroundColor: Colors.indigo,
-          ),
-        ],
-        onTap: _setCurrentIndex,
-        currentIndex: _currentIndex,
-        elevation: 5,
-        selectedItemColor: Colors.amber,
-        backgroundColor: Colors.indigo,
-        unselectedItemColor: Colors.white,
-        showUnselectedLabels: true,
       ),
       body: Container(
         padding: EdgeInsets.all(16.0),
@@ -86,68 +88,98 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           children: [
             Expanded(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: Colors.indigo,
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.amber,
+                  borderRadius: BorderRadius.circular(16.0),
+                  gradient: LinearGradient(begin: Alignment.topLeft, colors: [
+                    Colors.amber,
+                    Colors.amberAccent,
+                  ]),
+                ),
+                child: _calculated
+                    ? Row(
                         children: [
-                          Icon(
-                            Icons.male,
-                            color: Colors.white,
-                            size: 50,
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Your BMI',
+                                  style: TextStyle(
+                                    fontSize: 30,
+                                    color: Colors.indigo,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                Text(
+                                  'score is',
+                                  style: TextStyle(
+                                    fontSize: 30,
+                                    color: Colors.indigo,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
                           ),
-                          Text(
-                            'MALE',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0,
-                              // fontWeight: FontWeight.w600,
-                              letterSpacing: 1.5,
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  _bmi.toStringAsFixed(2),
+                                  style: TextStyle(
+                                    fontSize: 50,
+                                    color: Colors.indigo,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                Text(
+                                  _category,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.indigo,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 16,
-                  ),
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: Colors.indigo,
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      child: Column(
+                      )
+                    : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.female,
-                            color: Colors.white,
-                            size: 50,
-                          ),
-                          Text(
-                            'FEMALE',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0,
-                              // fontWeight: FontWeight.w600,
-                              letterSpacing: 1.5,
-                            ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text(
+                                'stay happy',
+                                style: TextStyle(
+                                  fontSize: 30,
+                                  color: Colors.indigo,
+                                ),
+                              ),
+                              Text(
+                                'and',
+                                style: TextStyle(
+                                  fontSize: 30,
+                                  color: Colors.indigo,
+                                ),
+                              ),
+                              Text(
+                                'healthy !',
+                                style: TextStyle(
+                                  fontSize: 30,
+                                  color: Colors.indigo,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                ],
               ),
             ),
             SizedBox(
@@ -164,46 +196,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         borderRadius: BorderRadius.circular(16.0),
                       ),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'AGE',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.remove,
-                                color: Colors.white,
-                              ),
-                              Text('20'),
-                              Icon(
-                                Icons.add,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 16,
-                  ),
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: Colors.indigo,
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text(
                             'WEIGHT',
@@ -215,39 +208,51 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                           ),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              Icon(
-                                Icons.remove,
-                                color: Colors.white,
-                              ),
-                              Text(
-                                '20',
-                                style: TextStyle(
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    if (_weight > 2) _weight--;
+                                  });
+                                },
+                                child: Icon(
+                                  Icons.remove_circle_outline_outlined,
                                   color: Colors.white,
+                                  size: 30,
                                 ),
                               ),
-                              Icon(
-                                Icons.add,
-                                color: Colors.white,
+                              Text(
+                                _weight.toString(),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    if (_weight <= 149) _weight++;
+                                  });
+                                },
+                                child: Icon(
+                                  Icons.add_circle_outline_outlined,
+                                  color: Colors.white,
+                                  size: 30,
+                                ),
                               ),
                             ],
                           ),
-                          Row(
-                            children: [
-                              Text(
-                                'KG',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Text(
-                                'LB',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          )
+                          Text(
+                            'KG',
+                            style: TextStyle(
+                              color: Colors.amber,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -267,7 +272,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 // color: Colors.indigo,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Text(
                       'HEIGHT',
@@ -296,13 +301,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           _height.round().toString(),
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         SizedBox(
@@ -333,13 +339,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.amber),
                     ),
-                    onPressed: () {},
+                    onPressed: _calculate,
                     child: Text(
                       'CALCULATE',
-                      style: GoogleFonts.balsamiqSans(
-                        fontSize: 16,
+                      style: GoogleFonts.bebasNeue(
+                        fontSize: 24,
                         letterSpacing: 1.5,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                         color: Colors.indigo,
                       ),
                     ),
